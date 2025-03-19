@@ -9,12 +9,14 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-public class Usuarios {
+public class Habits {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // Define a chave estrangeira
+    private Users users;
     private String nome;
-    private String email;
-    private String senha;
-    private LocalDate data_criacao;
+    private String frequencia;
+    private LocalDate criado_em;
 }

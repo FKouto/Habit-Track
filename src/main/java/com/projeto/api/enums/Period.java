@@ -1,6 +1,6 @@
 package com.projeto.api.enums;
 
-public enum Periodo {
+public enum Period {
     Manhã,
     Tarde,
     Noite

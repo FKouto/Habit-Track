@@ -2,21 +2,44 @@ package com.projeto.api.controller;
 
 import com.projeto.api.model.Users;
 import com.projeto.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // Cadastrar um novo usuário
-    @PostMapping
-    public Users createUser(@RequestBody Users users) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestBody Users users) {
+        if (userRepository.existsByEmail(users.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "O e-mail informado já está em uso."));
+        }
+        if (users.getSenha().length() < 8) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(Map.of("message", "A senha deve possuir 8 caracteres ou mais."));
+        }
+        if (users.getNome().isEmpty() || users.getEmail().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(Map.of("message", "Campos em branco."));
+        }
+
         users.setData_criacao(LocalDate.now());
-        return userRepository.save(users);
+        Users savedUser = userRepository.save(users);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 }

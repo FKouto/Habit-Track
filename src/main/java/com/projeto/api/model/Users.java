@@ -2,6 +2,8 @@ package com.projeto.api.model;
 
 import jakarta.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.Setter;
 

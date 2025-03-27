@@ -1,11 +1,9 @@
-package com.projeto.api.repository;
+package com.projeto.api.repositories;
 
-import com.projeto.api.domain.user.Users;
+import com.projeto.api.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Optional;
-
-public interface UserRepository extends JpaRepository<Users, Long> {
-    Optional<Users> findByEmail(String email);
-    boolean existsByEmail(String email); // Verificar se o e-mail de cadastro já existe
+public interface UserRepository extends JpaRepository<User, Long> {
+    UserDetails findByEmail(String email);
 }

@@ -1,8 +1,8 @@
 package com.projeto.api.controller;
 
-import com.projeto.api.model.Users;
-import com.projeto.api.repository.UserRepository;
-import com.projeto.api.config.JwtUtil;
+import com.projeto.api.domain.user.Users;
+import com.projeto.api.repositories.UserRepository;
+import com.projeto.api.infra.security.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +19,11 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
 
-    public UserController(UserRepository userRepository, JwtUtil jwtUtil) {
+    public UserController(UserRepository userRepository, TokenService tokenService) {
         this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
+        this.tokenService = tokenService;
     }
 
     // Cadastrar um novo usuário
@@ -57,7 +57,7 @@ public class UserController {
                     .body(Map.of("message", "Credenciais inválidas."));
         }
 
-        String token = jwtUtil.generateToken(users);
+        String token = tokenService.generateToken(users);
 
         return ResponseEntity.ok(Map.of("token", token));
     }

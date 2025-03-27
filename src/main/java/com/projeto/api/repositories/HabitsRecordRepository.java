@@ -1,4 +1,7 @@
 package com.projeto.api.repositories;
 
-public interface HabitsRecordRepository {
+import com.projeto.api.domain.habits.HabitsRecord;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface HabitsRecordRepository extends JpaRepository<HabitsRecord, Long> {
 }

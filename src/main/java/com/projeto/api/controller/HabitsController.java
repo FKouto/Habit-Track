@@ -1,9 +1,9 @@
 package com.projeto.api.controller;
 
-import com.projeto.api.model.Habits;
-import com.projeto.api.model.Users;
-import com.projeto.api.repository.HabitsRepository;
-import com.projeto.api.repository.UserRepository;
+import com.projeto.api.domain.habits.Habits;
+import com.projeto.api.domain.user.Users;
+import com.projeto.api.repositories.HabitsRepository;
+import com.projeto.api.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,4 +1,4 @@
-package com.projeto.api.model;
+package com.projeto.api.domain.user;
 
 import jakarta.persistence.*;
 import javax.validation.constraints.NotBlank;

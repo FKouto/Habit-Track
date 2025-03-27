@@ -1,5 +1,6 @@
-package com.projeto.api.model;
+package com.projeto.api.domain.habits;
 
+import com.projeto.api.domain.user.Users;
 import com.projeto.api.enums.Period;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,6 +1,7 @@
 package com.projeto.api.model;
 
 import jakarta.persistence.*;
+import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class Users {
     private Long id;
     @NotBlank(message = "O campo nome é obrigatório.")
     private String nome;
+    @NotBlank(message = "O campo email é obrigatório.")
     private String email;
     private String senha;
     private LocalDate data_criacao;

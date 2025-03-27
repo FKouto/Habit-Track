@@ -1,64 +1,49 @@
 package com.projeto.api.controllers;
 
-import com.projeto.api.domain.user.Users;
+import com.projeto.api.domain.user.AuthenticationDTO;
+import com.projeto.api.domain.user.LoginResponseDTO;
+import com.projeto.api.domain.user.RegisterDTO;
+import com.projeto.api.domain.user.User;
 import com.projeto.api.infra.security.TokenService;
 import com.projeto.api.repositories.UserRepository;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/users")
+@RequestMapping("auth")
 public class AuthenticationController {
-    private final UserRepository userRepository;
-    private final TokenService tokenService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserRepository repository;
+    @Autowired
+    private TokenService tokenService;
 
-    public AuthenticationController(UserRepository userRepository, TokenService tokenService) {
-        this.userRepository = userRepository;
-        this.tokenService = tokenService;
-    }
-
-    // Cadastrar um novo usuário
-    @PostMapping("/create")
-    public ResponseEntity<?> createUser(@RequestBody Users users) {
-        if (userRepository.existsByEmail(users.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "O e-mail informado já está em uso."));
-        }
-        if (users.getSenha().length() < 8) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(Map.of("message", "A senha deve possuir 8 caracteres ou mais."));
-        }
-        if (users.getNome().isEmpty() || users.getEmail().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(Map.of("message", "Campos em branco."));
-        }
-
-        users.setData_criacao(LocalDate.now());
-        Users savedUser = userRepository.save(users);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-    }
-
-    // Login de usuário
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Users users) {
-        Optional<Users> userOptional = userRepository.findByEmail(users.getEmail());
-        if (userOptional.isEmpty() || !Objects.equals(users.getSenha(), userOptional.get().getSenha())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Credenciais inválidas."));
-        }
+    public ResponseEntity loign(@RequestBody @Valid AuthenticationDTO data) {
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+        var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        String token = tokenService.generateToken(users);
+        var token = tokenService.generateToken((User) auth.getPrincipal());
 
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.ok(new LoginResponseDTO(token));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
+        if (this.repository.findByEmail(data.email()) != null) return ResponseEntity.badRequest().build();
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
+        User newUser = new User(data.nome(), data.email(), encryptedPassword);
+        this.repository.save(newUser);
+        return ResponseEntity.ok().build();
     }
 }

@@ -13,6 +13,7 @@ public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "O campo nome é obrigatório.")
     private String nome;
     private String email;
     private String senha;

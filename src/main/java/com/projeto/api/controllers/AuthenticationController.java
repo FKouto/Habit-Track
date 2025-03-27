@@ -1,8 +1,8 @@
 package com.projeto.api.controllers;
 
 import com.projeto.api.domain.user.Users;
-import com.projeto.api.repositories.UserRepository;
 import com.projeto.api.infra.security.TokenService;
+import com.projeto.api.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

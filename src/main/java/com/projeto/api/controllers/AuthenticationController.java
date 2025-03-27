@@ -1,4 +1,4 @@
-package com.projeto.api.controller;
+package com.projeto.api.controllers;
 
 import com.projeto.api.domain.user.Users;
 import com.projeto.api.repositories.UserRepository;
@@ -17,11 +17,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class AuthenticationController {
     private final UserRepository userRepository;
     private final TokenService tokenService;
 
-    public UserController(UserRepository userRepository, TokenService tokenService) {
+    public AuthenticationController(UserRepository userRepository, TokenService tokenService) {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
     }

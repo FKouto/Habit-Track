@@ -2,6 +2,7 @@ package com.projeto.api.controller;
 
 import com.projeto.api.model.Users;
 import com.projeto.api.repository.UserRepository;
+import com.projeto.api.config.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,14 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     // Cadastrar um novo usuário
@@ -41,5 +46,19 @@ public class UserController {
         Users savedUser = userRepository.save(users);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    // Login de usuário
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Users users) {
+        Optional<Users> userOptional = userRepository.findByEmail(users.getEmail());
+        if (userOptional.isEmpty() || !Objects.equals(users.getSenha(), userOptional.get().getSenha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Credenciais inválidas."));
+        }
+
+        String token = jwtUtil.generateToken(users);
+
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }

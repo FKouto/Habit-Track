@@ -18,6 +18,7 @@ public class Users {
     private String nome;
     @NotBlank(message = "O campo email é obrigatório.")
     private String email;
+    @Size(min = 8, message = "A senha deve possuir 8 caracteres ou mais.")
     private String senha;
     private LocalDate data_criacao;
 }

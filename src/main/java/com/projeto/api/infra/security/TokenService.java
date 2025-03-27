@@ -1,8 +1,8 @@
-package com.projeto.api.config;
+package com.projeto.api.infra.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.projeto.api.model.Users;
+import com.projeto.api.domain.user.Users;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

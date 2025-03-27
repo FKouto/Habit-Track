@@ -1,6 +1,6 @@
 package com.projeto.api.repository;
 
-import com.projeto.api.model.Users;
+import com.projeto.api.domain.user.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

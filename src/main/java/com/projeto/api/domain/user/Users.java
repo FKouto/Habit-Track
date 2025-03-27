@@ -1,26 +1,74 @@
 package com.projeto.api.domain.user;
 
 import jakarta.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
+@Table(name = "users")
+@Entity(name = "users")
 @Getter
-@Setter
-@Entity
-public class Users {
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "O campo nome é obrigatório.")
     private String nome;
-    @NotBlank(message = "O campo email é obrigatório.")
     private String email;
-    @Size(min = 8, message = "A senha deve possuir 8 caracteres ou mais.")
     private String senha;
+    private UserRole role;
     private LocalDate data_criacao;
+
+    public User(String nome, String email, String senha) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.role = UserRole.USER;
+        this.data_criacao = LocalDate.now(); // Set creation date in the constructor
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

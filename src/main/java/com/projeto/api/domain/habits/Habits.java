@@ -2,6 +2,7 @@ package com.projeto.api.domain.habits;
 
 import com.projeto.api.domain.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,4 +26,8 @@ public class Habits {
     private String nome_habito;
     private String frequencia;
     private LocalDate criado_em;
+
+    public void setFrequencia(@NotBlank String frequencia) {
+        this.frequencia = frequencia;
+    }
 }

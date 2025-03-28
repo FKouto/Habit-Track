@@ -24,10 +24,9 @@ public class Habits {
     @JoinColumn(name = "user_id", nullable = false) // Define a chave estrangeira
     private User user;
     private String nome_habito;
-    private String frequencia;
+    @Enumerated(EnumType.STRING)
+    private Frequency frequencia;
+    @Enumerated(EnumType.STRING)
+    private Period period;
     private LocalDate criado_em;
-
-    public void setFrequencia(@NotBlank String frequencia) {
-        this.frequencia = frequencia;
-    }
 }

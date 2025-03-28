@@ -1,7 +1,6 @@
 package com.projeto.api.controllers;
 
 import com.projeto.api.domain.user.AuthenticationDTO;
-import com.projeto.api.domain.user.LoginResponseDTO;
 import com.projeto.api.domain.user.RegisterDTO;
 import com.projeto.api.domain.user.User;
 import com.projeto.api.infra.security.TokenService;

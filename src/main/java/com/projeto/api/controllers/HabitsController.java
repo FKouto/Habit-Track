@@ -8,11 +8,13 @@ import com.projeto.api.repositories.HabitsRepository;
 import com.projeto.api.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/habits")
@@ -28,20 +30,22 @@ public class HabitsController {
     private TokenService tokenService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createHabit(@RequestHeader("Authorization") String authHeader, @RequestBody @Valid HabitDTO habitDTO) {
+    public ResponseEntity<?> createHabit(@RequestHeader("Authorization") String authHeader, @RequestBody @Valid HabitDTO data) {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
         UserDetails userDetails = userRepository.findByEmail(email);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(401).build();
+        if (data.nomeHabito() == null || data.nomeHabito().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(Map.of("message", "O nome do hábito não pode ser vazio."));
         }
 
         User user = (User) userDetails;
-        Habits habit = new Habits(null, user, habitDTO.nomeHabito(), habitDTO.frequencia(), habitDTO.periodo(), LocalDate.now());
+        Habits habit = new Habits(null, user, data.nomeHabito(), data.frequencia(), data.periodo(), LocalDate.now());
         habitsRepository.save(habit);
 
-        return ResponseEntity.ok(habit);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("message:", "Hábito registrado com sucesso!"));
     }
 
 //    @PutMapping("/frequency/{id}")

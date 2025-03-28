@@ -27,6 +27,6 @@ public class Habits {
     @Enumerated(EnumType.STRING)
     private Frequency frequencia;
     @Enumerated(EnumType.STRING)
-    private Period period;
+    private Period periodo;
     private LocalDate criado_em;
 }

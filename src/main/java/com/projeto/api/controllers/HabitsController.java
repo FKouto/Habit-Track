@@ -38,7 +38,7 @@ public class HabitsController {
         }
 
         User user = (User) userDetails;
-        Habits habit = new Habits(null, user, habitDTO.nomeHabito(), habitDTO.frequencia(), habitDTO.period(), LocalDate.now());
+        Habits habit = new Habits(null, user, habitDTO.nomeHabito(), habitDTO.frequencia(), habitDTO.periodo(), LocalDate.now());
         habitsRepository.save(habit);
 
         return ResponseEntity.ok(habit);

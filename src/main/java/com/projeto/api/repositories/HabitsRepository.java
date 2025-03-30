@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface HabitsRepository extends JpaRepository<Habits, Long> {
     List<Habits> findByUser(User user);
+    void deleteByUser(User user);
 }

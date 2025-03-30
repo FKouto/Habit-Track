@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,33 +28,38 @@ public class HabitsController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createHabit(@RequestHeader("Authorization") String authHeader, @RequestBody @Valid HabitDTO data) {
+    private User getUserFromToken(String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
-        UserDetails userDetails = userRepository.findByEmail(email);
+        return (User) userRepository.findByEmail(email);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createHabit(@RequestHeader("Authorization") String authHeader, @RequestBody @Valid HabitDTO data) {
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
+        }
 
         if (data.nomeHabito() == null || data.nomeHabito().isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(Map.of("message", "O nome do hábito não pode ser vazio."));
         }
 
-        User user = (User) userDetails;
         Habits habit = new Habits(null, user, data.nomeHabito(), data.frequencia(), data.periodo(), Completed.Falso, LocalDate.now());
         habitsRepository.save(habit);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(Map.of("message:", "Hábito registrado com sucesso!"));
+                .body(Map.of("message", "Hábito registrado com sucesso!"));
     }
 
     @PatchMapping("/updateName/{id}")
     public ResponseEntity<?> updateHabitName(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
-        UserDetails userDetails = userRepository.findByEmail(email);
+        User user = getUserFromToken(authHeader);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
 
         Habits habit = habitsRepository.findById(id).orElse(null);
@@ -63,7 +67,7 @@ public class HabitsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
         }
 
-        if (!habit.getUser().getEmail().equals(email)) {
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
         }
 
@@ -80,12 +84,10 @@ public class HabitsController {
 
     @PatchMapping("/updateFrequency/{id}")
     public ResponseEntity<?> updateHabitFrequency(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
-        UserDetails userDetails = userRepository.findByEmail(email);
+        User user = getUserFromToken(authHeader);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
 
         Habits habit = habitsRepository.findById(id).orElse(null);
@@ -93,7 +95,7 @@ public class HabitsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
         }
 
-        if (!habit.getUser().getEmail().equals(email)) {
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
         }
 
@@ -110,12 +112,10 @@ public class HabitsController {
 
     @PatchMapping("/updatePeriod/{id}")
     public ResponseEntity<?> updateHabitPeriod(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
-        UserDetails userDetails = userRepository.findByEmail(email);
+        User user = getUserFromToken(authHeader);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
 
         Habits habit = habitsRepository.findById(id).orElse(null);
@@ -123,7 +123,7 @@ public class HabitsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
         }
 
-        if (!habit.getUser().getEmail().equals(email)) {
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
         }
 
@@ -140,12 +140,10 @@ public class HabitsController {
 
     @PatchMapping("/updateCompleted/{id}")
     public ResponseEntity<?> updateHabitCompleted(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
-        UserDetails userDetails = userRepository.findByEmail(email);
+        User user = getUserFromToken(authHeader);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
 
         Habits habit = habitsRepository.findById(id).orElse(null);
@@ -153,7 +151,7 @@ public class HabitsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
         }
 
-        if (!habit.getUser().getEmail().equals(email)) {
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
         }
 
@@ -170,34 +168,26 @@ public class HabitsController {
 
     @GetMapping("/list")
     public ResponseEntity<?> listAllHabits(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
-        if (email == null) {
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
-        UserDetails userDetails = userRepository.findByEmail(email);
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        User user = (User) userDetails;
         List<Habits> habits = habitsRepository.findByUser(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("habits", habits));
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<?> deleteHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id)
-    {
-        String token = authHeader.replace("Bearer ", "");
-        String email = tokenService.validateToken(token);
+    public ResponseEntity<?> deleteHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        User user = getUserFromToken(authHeader);
 
-        if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
         }
 
         habitsRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Hábito deletado com sucesso!"));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "H��bito deletado com sucesso!"));
     }
 }

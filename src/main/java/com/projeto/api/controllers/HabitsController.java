@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/habits")
 public class HabitsController {
@@ -188,6 +189,6 @@ public class HabitsController {
         }
 
         habitsRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "H��bito deletado com sucesso!"));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Hábito deletado com sucesso!"));
     }
 }

@@ -17,7 +17,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.Map;
+
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
@@ -31,21 +35,21 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
-        ResponseEntity<LoginResponseDTO> validationResponse = validateLoginData(data);
+    public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
+        ResponseEntity<?> validationResponse = validateLoginData(data);
         if (validationResponse != null) return validationResponse;
 
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((User) auth.getPrincipal());
 
-        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDTO(token));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", token));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO data) {
-        ResponseEntity<String> validationResponse = validateRegisterData(data);
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
+        ResponseEntity<?> validationResponse = validateRegisterData(data);
         if (validationResponse != null) return validationResponse;
 
         String capitalizedNome = capitalizeName(data.nome());
@@ -53,23 +57,23 @@ public class AuthenticationController {
         User newUser = new User(capitalizedNome, data.email(), encryptedPassword);
         this.repository.save(newUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Usuario registrado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Usuário registrado com sucesso!"));
     }
 
     @DeleteMapping("/delete")
     @Transactional
-    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
 
         if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Não autorizado!"));
         }
 
         UserDetails userDetails = repository.findByEmail(email);
 
         if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Não foi possível processar a sua solicitação!");
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of("message", "Não foi possível processar a sua solicitação!"));
         }
 
         User user = (User) userDetails;
@@ -78,47 +82,47 @@ public class AuthenticationController {
         habitsRepository.deleteByUser(user);
 
         repository.deleteById(user.getId());
-        return ResponseEntity.status(HttpStatus.OK).body("Usuario deletado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Usuário deletado com sucesso!"));
     }
 
-    private ResponseEntity<LoginResponseDTO> validateLoginData(AuthenticationDTO data) {
+    private ResponseEntity<Map<String, String>> validateLoginData(AuthenticationDTO data) {
         if (data.email().isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new LoginResponseDTO("Campos em branco."));
+                    .body(Map.of("message", "Campos em branco."));
         }
 
         if (repository.findByEmail(data.email()) == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new LoginResponseDTO("Credenciais inválidas."));
+                    .body(Map.of("message", "Credenciais inválidas."));
         }
 
-        if (data.password().length() < 8) {
+        if (data.senha().length() < 8) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new LoginResponseDTO("A senha deve possuir 8 caracteres ou mais."));
+                    .body(Map.of("message", "A senha deve possuir 8 caracteres ou mais."));
         }
 
         return null;
     }
 
-    private ResponseEntity<String> validateRegisterData(RegisterDTO data) {
+    private ResponseEntity<Map<String, String>> validateRegisterData(RegisterDTO data) {
         if (data.nome().matches(".*\\d.*")) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body("O nome não pode conter números.");
+                    .body(Map.of("message", "O nome não pode conter números."));
         }
 
         if (repository.findByEmail(data.email()) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("O e-mail informado já está em uso.");
+                    .body(Map.of("message", "O e-mail informado já está em uso."));
         }
 
         if (data.senha().length() < 8) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body("A senha deve possuir 8 caracteres ou mais.");
+                    .body(Map.of("message", "A senha deve possuir 8 caracteres ou mais."));
         }
 
         if (data.nome().isEmpty() || data.email().isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body("Campos em branco.");
+                    .body(Map.of("message", "Campos em branco."));
         }
 
         return null;

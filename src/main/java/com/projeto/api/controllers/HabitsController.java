@@ -8,6 +8,7 @@ import com.projeto.api.repositories.HabitsRepository;
 import com.projeto.api.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +43,19 @@ public class HabitsController {
         habitsRepository.save(habit);
 
         return ResponseEntity.ok(habit);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id)
+    {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenService.validateToken(token);
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado!");
+        }
+
+        habitsRepository.deleteById(id);
+        return ResponseEntity.ok("Hábito deletado com sucesso!");
     }
 }

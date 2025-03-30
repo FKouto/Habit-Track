@@ -8,12 +8,16 @@ import com.projeto.api.infra.security.TokenService;
 import com.projeto.api.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,5 +49,26 @@ public class AuthenticationController {
         User newUser = new User(data.nome(), data.email(), encryptedPassword);
         this.repository.save(newUser);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String authHeader)
+    {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenService.validateToken(token);
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado!");
+        }
+
+        UserDetails userDetails = repository.findByEmail(email);
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Não foi possível processar a sua solicitação!");
+        }
+
+        User user = (User) userDetails;
+        repository.deleteById(user.getId());
+        return ResponseEntity.ok("Usuário deletado com sucesso!");
     }
 }

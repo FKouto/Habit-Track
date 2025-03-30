@@ -13,12 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -103,8 +98,8 @@ public class AuthenticationController {
         return capitalized.toString().trim();
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String authHeader)
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader)
     {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
@@ -121,6 +116,7 @@ public class AuthenticationController {
 
         User user = (User) userDetails;
         repository.deleteById(user.getId());
-        return ResponseEntity.ok("Usuário deletado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("message:", "Usuario registrado com sucesso!"));
     }
 }

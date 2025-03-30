@@ -1,9 +1,6 @@
 package com.projeto.api.controllers;
 
-import com.projeto.api.domain.habits.Frequency;
-import com.projeto.api.domain.habits.HabitDTO;
-import com.projeto.api.domain.habits.Habits;
-import com.projeto.api.domain.habits.Period;
+import com.projeto.api.domain.habits.*;
 import com.projeto.api.domain.user.User;
 import com.projeto.api.infra.security.TokenService;
 import com.projeto.api.repositories.HabitsRepository;
@@ -44,7 +41,7 @@ public class HabitsController {
         }
 
         User user = (User) userDetails;
-        Habits habit = new Habits(null, user, data.nomeHabito(), data.frequencia(), data.periodo(), LocalDate.now());
+        Habits habit = new Habits(null, user, data.nomeHabito(), data.frequencia(), data.periodo(), Completed.Falso, LocalDate.now());
         habitsRepository.save(habit);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -78,7 +75,7 @@ public class HabitsController {
         habit.setNome_habito(newName);
         habitsRepository.save(habit);
 
-        return ResponseEntity.ok(Map.of("message", "Nome do hábito atualizado com sucesso."));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Nome do hábito atualizado com sucesso."));
     }
 
     @PatchMapping("/updateFrequency/{id}")
@@ -108,7 +105,7 @@ public class HabitsController {
         habit.setFrequencia(Frequency.valueOf(newFrequency));
         habitsRepository.save(habit);
 
-        return ResponseEntity.ok(Map.of("message", "Frequência do hábito atualizada com sucesso."));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Frequência do hábito atualizada com sucesso."));
     }
 
     @PatchMapping("/updatePeriod/{id}")
@@ -138,13 +135,46 @@ public class HabitsController {
         habit.setPeriodo(Period.valueOf(newPeriod));
         habitsRepository.save(habit);
 
-        return ResponseEntity.ok(Map.of("message", "Período do hábito atualizado com sucesso."));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Período do hábito atualizado com sucesso."));
+    }
+
+    @PatchMapping("/updateCompleted/{id}")
+    public ResponseEntity<?> updateHabitCompleted(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenService.validateToken(token);
+        UserDetails userDetails = userRepository.findByEmail(email);
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Habits habit = habitsRepository.findById(id).orElse(null);
+        if (habit == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
+        }
+
+        if (!habit.getUser().getEmail().equals(email)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
+        }
+
+        String newCompleted = updates.get("completed");
+        if (newCompleted == null || newCompleted.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "O status de conclusão do hábito não pode ser vazio."));
+        }
+
+        habit.setCompleted(Completed.valueOf(newCompleted));
+        habitsRepository.save(habit);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Status de conclusão do hábito atualizado com sucesso."));
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> listAllHabits(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
+        }
         UserDetails userDetails = userRepository.findByEmail(email);
 
         if (userDetails == null) {
@@ -154,20 +184,20 @@ public class HabitsController {
         User user = (User) userDetails;
         List<Habits> habits = habitsRepository.findByUser(user);
 
-        return ResponseEntity.ok(habits);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("habits", habits));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id)
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<?> deleteHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id)
     {
         String token = authHeader.replace("Bearer ", "");
         String email = tokenService.validateToken(token);
 
         if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         habitsRepository.deleteById(id);
-        return ResponseEntity.ok("Hábito deletado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Hábito deletado com sucesso!"));
     }
 }

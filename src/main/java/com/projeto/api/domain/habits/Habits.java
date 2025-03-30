@@ -2,7 +2,6 @@ package com.projeto.api.domain.habits;
 
 import com.projeto.api.domain.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -26,5 +25,6 @@ public class Habits {
     private Frequency frequencia;
     @Enumerated(EnumType.STRING)
     private Period periodo;
+    private Completed completed;
     private LocalDate criado_em;
 }

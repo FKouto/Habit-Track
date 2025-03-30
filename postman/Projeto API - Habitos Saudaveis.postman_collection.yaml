@@ -1,0 +1,329 @@
+openapi: 3.0.0
+info:
+  title: Projeto API
+  description: API para gerenciamento de usuários e hábitos
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Servidor local
+paths:
+  /auth/login:
+    post:
+      summary: Login de usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationDTO'
+      responses:
+        '200':
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
+        '422':
+          description: Campos em branco ou senha inválida
+        '401':
+          description: Credenciais inválidas
+  /auth/register:
+    post:
+      summary: Registro de usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDTO'
+      responses:
+        '200':
+          description: Registro bem-sucedido
+        '422':
+          description: Dados inválidos
+        '409':
+          description: E-mail já em uso
+  /auth/delete:
+    delete:
+      summary: Deletar usuário
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuário deletado com sucesso
+        '401':
+          description: Não autorizado
+        '502':
+          description: Erro ao processar a solicitação
+  /habits/create:
+    post:
+      summary: Criar hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitDTO'
+      responses:
+        '200':
+          description: Hábito registrado com sucesso
+        '401':
+          description: Token inválido
+        '422':
+          description: Nome do hábito vazio
+  /habits/updateName/{id}:
+    patch:
+      summary: Atualizar nome do hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nomeHabito:
+                  type: string
+      responses:
+        '200':
+          description: Nome do hábito atualizado com sucesso
+        '401':
+          description: Token inválido
+        '404':
+          description: Hábito não encontrado
+        '403':
+          description: Permissão negada
+        '422':
+          description: Nome do hábito vazio
+  /habits/updateFrequency/{id}:
+    patch:
+      summary: Atualizar frequência do hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                frequencia:
+                  type: string
+      responses:
+        '200':
+          description: Frequência do hábito atualizada com sucesso
+        '401':
+          description: Token inválido
+        '404':
+          description: Hábito não encontrado
+        '403':
+          description: Permissão negada
+        '422':
+          description: Frequência do hábito vazia
+  /habits/updatePeriod/{id}:
+    patch:
+      summary: Atualizar período do hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodo:
+                  type: string
+      responses:
+        '200':
+          description: Período do hábito atualizado com sucesso
+        '401':
+          description: Token inválido
+        '404':
+          description: Hábito não encontrado
+        '403':
+          description: Permissão negada
+        '422':
+          description: Período do hábito vazio
+  /habits/updateCompleted/{id}:
+    patch:
+      summary: Atualizar status de conclusão do hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completed:
+                  type: string
+      responses:
+        '200':
+          description: Status de conclusão do hábito atualizado com sucesso
+        '401':
+          description: Token inválido
+        '404':
+          description: Hábito não encontrado
+        '403':
+          description: Permissão negada
+        '422':
+          description: Status de conclusão do hábito vazio
+  /habits/list:
+    get:
+      summary: Listar todos os hábitos
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de hábitos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  habits:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Habits'
+        '401':
+          description: Token inválido
+  /habits/delete/{id}:
+    delete:
+      summary: Deletar hábito
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Hábito deletado com sucesso
+        '401':
+          description: Token inválido
+        '404':
+          description: Hábito não encontrado
+components:
+  schemas:
+    AuthenticationDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    RegisterDTO:
+      type: object
+      properties:
+        nome:
+          type: string
+        email:
+          type: string
+        senha:
+          type: string
+    LoginResponseDTO:
+      type: object
+      properties:
+        token:
+          type: string
+    HabitDTO:
+      type: object
+      properties:
+        nomeHabito:
+          type: string
+        frequencia:
+          type: string
+        periodo:
+          type: string
+    Habits:
+      type: object
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        nomeHabito:
+          type: string
+        frequencia:
+          type: string
+        periodo:
+          type: string
+        completed:
+          type: string
+        dataCriacao:
+          type: string
+          format: date
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        email:
+          type: string
+        senha:
+          type: string
+        role:
+          type: string
+        dataCriacao:
+          type: string
+          format: date

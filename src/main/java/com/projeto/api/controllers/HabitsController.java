@@ -55,6 +55,64 @@ public class HabitsController {
                 .body(Map.of("message", "Hábito registrado com sucesso!"));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> listById(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
+        }
+
+        Habits habit = habitsRepository.findById(id).orElse(null);
+        if (habit == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado."));
+        }
+
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(habit);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateHabit(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody @Valid HabitDTO data) {
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token inválido."));
+        }
+
+        Habits habit = habitsRepository.findById(id).orElse(null);
+        if (habit == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Hábito não encontrado"));
+        }
+
+        if (!habit.getUser().getEmail().equals(user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Você não tem permissão para atualizar este hábito."));
+        }
+
+        if(data.nomeHabito() == null || data.nomeHabito().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "O nome do hábito não pode ser vazio."));
+        }
+
+        if(data.periodo() == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "O período do hábito não pode ser vazio."));
+        }
+
+        if(data.frequencia() == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "A frequência do hábito não pode ser vazio."));
+        }
+
+        habit.setNome_habito(data.nomeHabito());
+        habit.setPeriodo(data.periodo());
+        habit.setFrequencia(data.frequencia());
+
+        habitsRepository.save(habit);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Hábito atualizado com sucesso."));
+    }
+
     @PatchMapping("/updateName/{id}")
     public ResponseEntity<?> updateHabitName(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody Map<String, String> updates) {
         User user = getUserFromToken(authHeader);

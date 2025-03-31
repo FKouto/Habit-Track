@@ -2,6 +2,13 @@
 
 Este projeto é uma API Restful desenvolvida em Java utilizando o framework Spring Boot. A API foi criada como parte de um projeto acadêmico para a disciplina de Gestão e Qualidade de Software. O objetivo principal é gerenciar usuários, hábitos e registros de hábitos.
 
+## Integrantes do Projeto
+Scrum Master: Enzo Nascimento (202320732). <br>
+Front-End: William Damascera (2022512580); Lucas Alves; Kauan Lacerda e Silva (202412124). (Tech lead: William Damascera) <br>
+Back-End: Felipe Couto (823127403); Geziel Oliveira Silva (202313071); Fabio Moreira. (Tech lead: Felipe Couto) <br>
+Banco de Dados: Geziel Oliveira Silva (202313071); Lorhan de Souza Mendes Ferreira (1262323379). <br>
+QA: João Vitor Mendes da Silva (202411713). <br>
+
 ## Tecnologias Utilizadas
 
 - **Java 24**

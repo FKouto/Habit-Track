@@ -39,7 +39,7 @@ public class AuthenticationController {
         ResponseEntity<?> validationResponse = validateLoginData(data);
         if (validationResponse != null) return validationResponse;
 
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email().toLowerCase(), data.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((User) auth.getPrincipal());
@@ -52,10 +52,13 @@ public class AuthenticationController {
         ResponseEntity<?> validationResponse = validateRegisterData(data);
         if (validationResponse != null) return validationResponse;
 
-        String capitalizedNome = capitalizeName(data.nome());
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
-        User newUser = new User(capitalizedNome, data.email(), encryptedPassword);
-        this.repository.save(newUser);
+        try {
+            String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
+            User newUser = new User(capitalizeName(data.nome()), data.email().toLowerCase(), encryptedPassword);
+            this.repository.save(newUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Erro ao registrar o usuário.", "error", e.getMessage()));
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Usuário registrado com sucesso!"));
     }

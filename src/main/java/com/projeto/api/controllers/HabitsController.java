@@ -103,10 +103,15 @@ public class HabitsController {
         if(data.frequencia() == null) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "A frequência do hábito não pode ser vazio."));
         }
+        
+        if(data.completed() == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("message", "O status do hábito não pode ser vazio."));
+        }
 
         habit.setNome_habito(data.nomeHabito());
         habit.setPeriodo(data.periodo());
         habit.setFrequencia(data.frequencia());
+        habit.setCompleted(data.completed());
 
         habitsRepository.save(habit);
 

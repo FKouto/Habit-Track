@@ -1,3 +1,4 @@
+![img](https://raw.githubusercontent.com/FKouto/Habit-Track/refs/heads/main/header-repo-img.png)
 # 🧠 Habit Tracker – Sistema de Gestão de Hábitos
 
 Este repositório reúne a **aplicação web (front-end)** e a **API RESTful (back-end)** do projeto Habit Tracker, desenvolvido como parte de um trabalho acadêmico da disciplina de **Gestão e Qualidade de Software**. O objetivo do sistema é permitir que usuários cadastrem, editem e acompanhem seus hábitos diários de forma prática.

@@ -2,6 +2,22 @@
 
 Este repositório reúne a **aplicação web (front-end)** e a **API RESTful (back-end)** do projeto Habit Tracker, desenvolvido como parte de um trabalho acadêmico da disciplina de **Gestão e Qualidade de Software**. O objetivo do sistema é permitir que usuários cadastrem, editem e acompanhem seus hábitos diários de forma prática.
 
+# Integrantes
+- Scrum Master: <br>
+    - Enzo Nascimento (202320732). <br>
+- Front-End: <br>
+    - William Damascera (2022512580) / (Tech lead); <br>
+    - Lucas Alves; Kauan Lacerda e Silva (202412124). <br>
+- Back-End:
+    - Felipe Couto (823127403) / (Tech Lead); <br>
+    - Geziel Oliveira Silva (202313071);<br>
+    - Fabio Moreira. <br>
+- Banco de Dados: <br>
+    - Geziel Oliveira Silva (202313071); <br>
+    - Lorhan de Souza Mendes Ferreira (1262323379). <br>
+- QA: <br>
+    - João Vitor Mendes da Silva (202411713). <br>
+
 ## 📦 Tecnologias Utilizadas
 
 ### 🔙 Back-end

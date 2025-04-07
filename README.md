@@ -8,7 +8,8 @@ Este repositório reúne a **aplicação web (front-end)** e a **API RESTful (ba
     - Enzo Nascimento (202320732). <br>
 - Front-End: <br>
     - William Damascera (2022512580) / (Tech lead); <br>
-    - Lucas Alves; Kauan Lacerda e Silva (202412124). <br>
+    - Lucas Alves; <br>
+    -  Kauan Lacerda e Silva (202412124). <br>
 - Back-End:
     - Felipe Couto (823127403) / (Tech Lead); <br>
     - Geziel Oliveira Silva (202313071);<br>
